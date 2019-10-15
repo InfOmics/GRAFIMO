@@ -66,6 +66,7 @@ def scoreGraphsPaths(subgraphs, motif, pvalueT, cores, no_reverse):
         sgs=glob.glob('*.tsv')
         sgs_splt=np.array_split(sgs, N_CORES)
         jobs=[]
+        proc_finished=0
 
         # run the processes in parallel
         for i in range(N_CORES):
@@ -74,6 +75,9 @@ def scoreGraphsPaths(subgraphs, motif, pvalueT, cores, no_reverse):
             p.start() # start the process
             
         for job in jobs:
+            proc_finished+=1
+            printProgressBar(proc_finished, N_CORES, prefix='Progress:',
+                                suffix='Complete', length=100)
             job.join() # deadlock
             
         os.chdir(cwd) 
@@ -272,7 +276,30 @@ def compute_pvalue(score, motif):
     
     return pvalue
 
-        
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+        Print the progress bar in the sequence scoring process
+        ----
+        Parameters:
+            iteration (int)
+            total (int)
+            prefix (str)
+            suffix (str)
+            decimals (int)
+            length (int)
+            fill (str)
+            printEnd (str)
+        ----
+        Returns
+            None
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = printEnd)
+    # Print New Line on Complete
+    if iteration == total:
+        print()     
         
         
 
