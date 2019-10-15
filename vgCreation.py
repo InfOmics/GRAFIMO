@@ -113,12 +113,14 @@ def create_vg(linear_genome='', vcf=''):
     cwd=os.getcwd()
     
     if not tbiexist(cwd):
-        cmd='tabix -p {0}'.format(vcf) # dependency needed
+        cmd='tabix {0}'.format(vcf) # dependency needed
         code=subprocess.call(cmd, shell=True)
         if code!=0:
             sys.exit(code)
+            
+    linear_genome='../'+linear_genome
     
-    tmpwd='.fimovg_tmp'
+    tmpwd='.grafimo_tmp'
     
     cmd='mkdir -p {0}'.format(tmpwd)
     code=subprocess.call(cmd, shell=True)
@@ -148,6 +150,8 @@ def create_vg(linear_genome='', vcf=''):
         
         if code!=0:     # we have errors in vg creation
             sys.exit(code)
+            
+        print('Indexing the VG...')
             
         vg_index='vg index -p -x {0} {1}'.format(xg, vg)
         code=subprocess.call(vg_index, shell=True)

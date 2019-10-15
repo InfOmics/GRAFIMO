@@ -32,16 +32,13 @@ class Motif(object):
     
     motif_matrix=pd.DataFrame()
     motif_matrix_scaled=pd.DataFrame()
-    motif_matrix_reverse=pd.DataFrame()
-    motif_matrix_scaled_reverse=pd.DataFrame()
     motif_pval_matrix=pd.DataFrame()
     width=-1
     minValue=-1
-    has_reverse=False
     TF_name=''
     alphabet=''
     
-    def __init__(self, motif_matrix, width, has_reverse=False, TF_name=''):
+    def __init__(self, motif_matrix, width, TF_name=''):
         
         if motif_matrix.empty:
             code=he.throw_empty_motif_error()
@@ -55,17 +52,12 @@ class Motif(object):
             code=he.throw_incorrect_width_error()
             sys.exit(code)
             
-        if not isinstance(has_reverse, bool):
-            code=he.throw_not_bool_error()
-            sys.exit(code)
-            
         if not isinstance(TF_name, str):
             code=he.throw_not_str_error()
             sys.exit(code)
         
         self.motif_matrix=motif_matrix
         self.width=width
-        self.has_reverse=has_reverse
         self.TF_name=TF_name
     
     def setMotif_matrix(self, motif_matrix):
@@ -81,24 +73,6 @@ class Motif(object):
         else:
             self.motif_matrix=motif_matrix
             
-    def setMotif_matrix_reverse(self, rev_matrix):
-        
-        if self.has_reverse:
-            #check matrix consistency
-            if rev_matrix.empty:
-                code=he.throw_empty_motif_error()
-                sys.exit(code)
-            
-            elif not isinstance(rev_matrix, pd.DataFrame):
-                code=he.throw_motif_matrix_not_pd_dataframe()
-                sys.exit(code)
-                
-            else:
-                self.motif_matrix_reverse=rev_matrix
-        else:
-            code=he.throw_rev_matrix_not_requested_error()
-            sys.exit(code)
-            
     def setMotif_matrix_scaled(self, scaled_matrix):
         
         if scaled_matrix.empty:
@@ -112,19 +86,6 @@ class Motif(object):
         else:
             self.motif_matrix_scaled=scaled_matrix
             
-    def setMotif_matrix_scaled_reverse(self, scaled_matrix):
-        
-        if scaled_matrix.empty:
-            code=he.throw_empty_motif_error()
-            sys.exit(code)
-            
-        elif not isinstance(scaled_matrix, pd.DataFrame):
-            code=he.throw_motif_matrix_not_pd_dataframe()
-            sys.exit(code)
-            
-        else:
-            self.motif_matrix_scaled_reverse=scaled_matrix
-            
     def setMotif_pval_matrix(self, pval_mat):
         
         self.motif_pval_matrix=pval_mat
@@ -137,15 +98,6 @@ class Motif(object):
             
         else:
             self.width=width
-        
-    def setHas_reverse(self, has_reverse):
-        
-        if not isinstance(has_reverse, bool):
-            code=he.throw_not_bool_error()
-            sys.exit(code)
-            
-        else:
-            self.has_reverse=has_reverse
         
     def setTF_name(self, TF_name):
         
@@ -177,14 +129,6 @@ class Motif(object):
         
         return self.motif_matrix_scaled
     
-    def getMotif_matrix_reverse(self):
-        
-        return self.motif_matrix_reverse
-    
-    def getMotif_matrix_scaled_reverse(self):
-        
-        return self.motif_matrix_scaled_reverse
-    
     def getMotif_pval_mat(self):
         
         return self.motif_pval_matrix
@@ -192,10 +136,6 @@ class Motif(object):
     def getWidth(self):
         
         return self.width
-    
-    def getHas_reverse(self):
-        
-        return self.has_reverse
     
     def getTF_name(self):
         
@@ -297,7 +237,7 @@ def build_motif_pwm_jaspar(motif_file, bg_file, pseudocount):
     motif_prob = (motif_count/motif_count.sum(0)) # probabilities
     motif_log_odds=pd.DataFrame(index=nucs, columns=range(motif_width), data=0)
    
-    for j in range(motif_width):
+    for j in range(motif_width): 
         
         site_counts=sum(motif_count.loc[:,j])
         total_counts=site_counts+pseudocount
@@ -398,9 +338,10 @@ def readBGfile(bg_file):
                              defined in the input file
     """
     DNA_ALPHABET=['A', 'C', 'G', 'T']
-    bg_dict={}
     
     if bg_file: #we are given the bg file
+        
+        bg_dict={}
         found_nucs=set()
     
         try:
@@ -429,78 +370,13 @@ def readBGfile(bg_file):
             
     else: # we are not given of the bg file
         
-        for i in range(len(DNA_ALPHABET)):
-            bg_dict.update({DNA_ALPHABET[i]:0.25})
+        get_uniformBG(DNA_ALPHABET)
         
         # assign the uniform distribution to the background
                 
     return bg_dict
 
-def get_pwm_reverse(motif):
-    """
-        Returns the motif matrix reversed
-        ----
-        Prameters:
-            motif (Motif) : object motif
-        ----
-        Returns:
-            motif (Motif) : object motif updated with the reversed motif matrix
-    """
-    
-    if not isinstance(motif, Motif):
-        code=he.throw_not_Motif_instance()
-        sys.exit(code)
-        
-    elif not motif.getHas_reverse():
-        code=he.throw_no_reverse_error()
-        sys.exit(code)
-        
-    else:
-        
-        motif_mat=motif.getMotif_matrix()
-        
-        alphabet=''.join(motif_mat.index)
-        rev_alphabet=reverseAlphabet(alphabet)
-        
-        motif_mat_rev=pd.DataFrame(index=motif_mat.index,columns=motif_mat.columns, data=0)
-        
-        for nuc in alphabet:
-            nuc_data=motif_mat.loc[nuc,:].iloc[::-1].to_list()
-            revnuc=rev_alphabet[nuc]
-            motif_mat_rev.loc[revnuc,:]=nuc_data
-        
-        motif.setMotif_matrix_reverse(motif_mat_rev)
-    
-        return motif
-
-def reverseAlphabet(alphabet):
-    """
-        Returns the reversed DNA alphabet
-        ----
-        Parameters:
-            alphabet (str) 
-        ----
-        Returns:
-            revAlphabet (dict) : dictionary that maps each original character
-                                 of the input alphabet to its reverse value
-    """    
-    alphabet_lst=list(alphabet)
-    DNA_ALPHABET=['A', 'C', 'G', 'T']
-    
-    for c in alphabet_lst:
-        if c not in DNA_ALPHABET:
-            code=he.throw_not_dna_alphabet_error()
-            sys.exit(code)
-        else:
-            continue
-        
-    
-    revAlphabet={'A':'T', 'C':'G', 'G':'C', 'T':'A'}
-    
-    return revAlphabet
-    
-
-def get_motif_pwm(motif_file, bgs, pseudo, no_reverse):
+def get_motif_pwm(motif_file, bgs, pseudo):
     """
         Pipeline to build the motif object
         ----
@@ -508,7 +384,6 @@ def get_motif_pwm(motif_file, bgs, pseudo, no_reverse):
             motif_file (str) : path to the motif file
             bgs (str) : path to the background file
             pseudo (float) : value to add to the motif counts
-            no_reverse (bool) 
         ----
         Returns:
             motif (Motif) : motif object
@@ -520,15 +395,38 @@ def get_motif_pwm(motif_file, bgs, pseudo, no_reverse):
     sm=scale_pwm(motif.getMotif_matrix())
     motif.setMotif_matrix_scaled(sm)
         
-    if not no_reverse:
-        motif.setHas_reverse(True) # now the motif has also the reverse matrix
-        motif=get_pwm_reverse(motif)
-        smr=scale_pwm(motif.getMotif_matrix_reverse())
-        motif.setMotif_matrix_scaled_reverse(smr)
-        
     motif=comp_pval_mat(motif)
     
     return motif
+
+def get_uniformBG(alphabet):
+    """
+        Returns a uniform probability distribution for a given alphabet
+        ----
+        Parameters:
+            alphabet (list) : alphabet in list form
+        ----
+            Returns:
+                bg_dict (dict) : dictionary of the uniform probability
+    """
+    
+    if not isinstance(alphabet, list):
+        code=he.throw_not_str_error()
+        sys.exit(code)
+        
+    elif isinstance(alphabet, str): # transform the alphabet from a string to
+                                    # a list
+        alphabet=list(alphabet)
+    
+    
+    alpha_len=len(alphabet)
+    bg_dict={}
+    up=1/alpha_len
+    
+    for i in range(alpha_len):
+        bg_dict.update({alphabet[i]:up})
+            
+    return bg_dict
     
 
 

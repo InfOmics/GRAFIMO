@@ -28,14 +28,22 @@ def writeresults(objs, dest):
         
     cwd=os.getcwd()
     
-    cmd='mkdir {0}'.format(dest) # create the out directory
-    code=subprocess.call(cmd, shell=True)
+    if not os.path.isdir(dest): # tthe directory not exist
     
-    if code!=0:
-        cderr=he.throw_subprocess_error()
-        sys.exit(cderr)
+        cmd='mkdir {0}'.format(dest) # create the out directory
+        code=subprocess.call(cmd, shell=True)
     
-    os.chdir(dest)
+        if code!=0:
+            cderr=he.throw_subprocess_error()
+            sys.exit(cderr)
+            
+    else:
+        os.chdir(dest) # for some reason it exists
+        code=subprocess.call('rm *') # clear the directory
+        
+        if code != 0:
+            cderr=he.throw_subprocess_error()
+            sys.exit(cderr)
     
     # write objects in dest
     
@@ -43,7 +51,8 @@ def writeresults(objs, dest):
         
         if isinstance(obj, pd.DataFrame):
             df=obj
-            df.to_csv('fimovg_out.csv', sep=',', encoding='utf-8')
+            df.to_csv('grafimo_out.csv', sep=',', encoding='utf-8')
+            #print(df.to_html())
             
             
         
