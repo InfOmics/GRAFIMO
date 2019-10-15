@@ -20,7 +20,7 @@ import paths_scoring as ps
 import vgCreation as vgc
 import objs_writer as ow
 
-__version__='0.4'
+__version__='0.5'
 
 def with_vg_pipeline(cores, linear_genome, vcf, bedfile, motif, bgfile, 
                          pseudo, pvalueT, no_reverse, dest, pipeline):
