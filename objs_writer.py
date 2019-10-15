@@ -39,11 +39,10 @@ def writeresults(objs, dest):
             
     else:
         os.chdir(dest) # for some reason it exists
-        code=subprocess.call('rm *') # clear the directory
         
-        if code != 0:
-            cderr=he.throw_subprocess_error()
-            sys.exit(cderr)
+        # the content will be automatically rewritten
+            
+        os.chdir(dest)
     
     # write objects in dest
     

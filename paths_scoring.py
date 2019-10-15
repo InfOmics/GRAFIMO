@@ -78,36 +78,36 @@ def scoreGraphsPaths(subgraphs, motif, pvalueT, cores, no_reverse):
             
         os.chdir(cwd) 
         
-        #cmd="rm -fr {0}".format(subgraphs)
-        #code=subprocess.call(cmd)
+        cmd="rm -fr {0}".format(subgraphs)
+        code=subprocess.call(cmd, shell=True)
         
-        #if code!=0:
-         #   cderr=he.throw_subprocess_error()
-         #   sys.exit(cderr)
+        if code!=0:
+            cderr=he.throw_subprocess_error()
+            sys.exit(cderr)
         
         seqs=[]
         scores=[]
         seqnames=[]
-        #chroms=[]
-        #starts=[]
-        #ends=[]
+        chroms=[]
+        starts=[]
+        ends=[]
         pvalues=[]
         strands=[]
         for key in returnDict.keys():
             seqs+=returnDict[key]['sequence'].to_list()
             scores+=returnDict[key]['score'].to_list()
             seqnames+=returnDict[key]['sequence_name'].to_list()
-            #chroms+=returnDict[key]['chromosome'].to_list()
-            #starts+=returnDict[key]['start'].to_list()
-            #ends+=returnDict[key]['end'].to_list()
+            chroms+=returnDict[key]['chromosome'].to_list()
+            starts+=returnDict[key]['start'].to_list()
+            ends+=returnDict[key]['end'].to_list()
             pvalues+=returnDict[key]['pvalue'].to_list()
             strands+=returnDict[key]['strand'].to_list()
             
         finaldf=pd.DataFrame()
         finaldf['sequence_name']=seqnames
-        #finaldf['chromosome']=chroms
-        #finaldf['start']=starts
-        #finaldf['end']=ends
+        finaldf['chromosome']=chroms
+        finaldf['start']=starts
+        finaldf['end']=ends
         finaldf['sequence']=seqs
         finaldf['score']=scores
         finaldf['pvalue']=pvalues
@@ -172,9 +172,9 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
     scores=[]
     pvalues=[]
     seqnames=[]
-    #chroms=[]
-    #starts=[]
-    #ends=[]
+    chroms=[]
+    starts=[]
+    ends=[]
     strands=[]
         
     
@@ -188,8 +188,8 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                 if int(dirs[i])==0: # is forward
                     kmer=paths[i]
                     seqname=str(key)
-                    #chrom, pos=seqname.split('_')
-                    #start, end=pos.split('-')
+                    chrom, pos=seqname.split('_')
+                    start, end=pos.split('-')
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand= '+' # forward strand
                     
@@ -199,24 +199,24 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                         pvalues.append(pvalue)
                         seqnames.append(seqname)
                         strands.append(strand)
-                        #chroms.append(chrom)
-                        #starts.append(start)
-                        #ends.append(end)
+                        chroms.append(chrom)
+                        starts.append(start)
+                        ends.append(end)
                         
             else:
                 if int(dirs[i]) == 0: #is forward
                     kmer=paths[i]
                     seqname=str(key)
-                    #chrom, pos=seqname.split('_')
-                    #start, end=pos.split('-')
+                    chrom, pos=seqname.split('_')
+                    start, end=pos.split('-')
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand='+'
 
                 elif int(dirs[i]) == 1: # is reverse
                     kmer=paths[i]
                     seqname=str(key)
-                    #chrom, pos=seqname.split('_')
-                    #start, end=pos.split('-')
+                    chrom, pos=seqname.split('_')
+                    start, end=pos.split('-')
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand='-'
                     
@@ -226,16 +226,16 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                     pvalues.append(pvalue)
                     seqnames.append(seqname)
                     strands.append(strand)
-                    #chroms.append(chrom)
-                    #starts.append(start)
-                    #ends.append(end)
+                    chroms.append(chrom)
+                    starts.append(start)
+                    ends.append(end)
                     
                     
     summary=pd.DataFrame()
     summary['sequence_name']=seqnames
-    #summary['chromosome']=chroms
-    #summary['start']=starts
-    #summary['end']=ends
+    summary['chromosome']=chroms
+    summary['start']=starts
+    summary['end']=ends
     summary['sequence']=seqs
     summary['score']=scores
     summary['pvalue']=pvalues
