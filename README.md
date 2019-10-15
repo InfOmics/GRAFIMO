@@ -57,7 +57,7 @@ Output:
 
 Example:
 ```
-grafimo --linear_genome hg.fa --vcf vcf.vcf.gz --bedfile bed.bed --motif m.jaspar [OPTIONS]
+grafimo --linear_genome genome.fa --vcf my_vcf.vcf.gz --bedfile my_bed.bed --motif my_motif.jaspar [OPTIONS]
 ```
 
 **without variation graph creation**
