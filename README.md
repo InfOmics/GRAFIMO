@@ -1,6 +1,8 @@
 # GRAFIMO
 Graph-based Find Individual Motif Occurrences
 
+![workflow](https://user-images.githubusercontent.com/51021763/66830153-1a0f9c00-ef55-11e9-9702-fa6ba0f2cf61.png)
+
 ## GRAFIMO installation and usage
 **dependencies needed**
 
