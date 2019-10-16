@@ -8,8 +8,6 @@ Graph-based Find Individual Motif Occurrences
 
 **pip installation**
 
-**docker image**
-
 ## installation test
  If everything went right type:
  ```
@@ -35,6 +33,8 @@ Remember to exit from the test directory with:
 ```
 cd ..
 ```
+
+## Docker image
 
 ## Usage
 
