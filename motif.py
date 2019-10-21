@@ -35,10 +35,11 @@ class Motif(object):
     motif_pval_matrix=pd.DataFrame()
     width=-1
     minValue=-1
-    TF_name=''
+    motifID='' # jaspar ID
+    motifName='' # usual name
     alphabet=''
     
-    def __init__(self, motif_matrix, width, TF_name=''):
+    def __init__(self, motif_matrix, width, motifID='', motifName=''):
         
         if motif_matrix.empty:
             code=he.throw_empty_motif_error()
@@ -52,13 +53,14 @@ class Motif(object):
             code=he.throw_incorrect_width_error()
             sys.exit(code)
             
-        if not isinstance(TF_name, str):
+        if not isinstance(motifID, str):
             code=he.throw_not_str_error()
             sys.exit(code)
         
         self.motif_matrix=motif_matrix
         self.width=width
-        self.TF_name=TF_name
+        self.motifID=motifID
+        self.motifName=motifName
     
     def setMotif_matrix(self, motif_matrix):
         
@@ -99,18 +101,31 @@ class Motif(object):
         else:
             self.width=width
         
-    def setTF_name(self, TF_name):
+    def setMotifID(self, motifID):
         
-        if not isinstance(TF_name, str):
+        if not isinstance(motifID, str):
             code=he.throw_not_str_error()
             sys.exit(code)
             
-        elif not TF_name:
+        elif not motifID:
             code=he.throw_empty_TF_name_error()
             sys.exit(code)
             
         else:
-            self.TF_name=TF_name
+            self.motifID=motifID
+            
+    def setMotifName(self, motifName):
+        
+        if not isinstance(motifName, str):
+            code=he.throw_not_str_error()
+            sys.exit(code)
+            
+        elif not motifName:
+            code=he.throw_empty_TF_name_error()
+            sys.exit(code)
+            
+        else:
+            self.motifName=motifName
             
     def setAlphabet(self, alphabet):
         
@@ -137,9 +152,13 @@ class Motif(object):
         
         return self.width
     
-    def getTF_name(self):
+    def getMotifID(self):
         
-        return self.TF_name
+        return self.motifID
+    
+    def getMotifName(self):
+        
+        return self.motifName
     
     def getMinValue(self):
         
@@ -213,7 +232,11 @@ def build_motif_pwm_jaspar(motif_file, bg_file, pseudocount):
     try:
         mf=open(motif_file, mode='r') # open the file in reading only mode
         
-        TF_name=str(mf.readline()[1:]) # get the name
+        header=str(mf.readline()[1:]) # read the header
+        motifID, motifName=header.split('\t')[0:2] # get the jaspar ID and the usual
+                                             # name for the motif
+        motifName=motifName[:-1]
+                                             
         for line in mf:
             line = line.strip()
             nuc = line.strip()[:1] # get the nucleotide
@@ -252,7 +275,8 @@ def build_motif_pwm_jaspar(motif_file, bg_file, pseudocount):
             
             motif_log_odds.loc[nuc,j]=np.log2(freq/bg)
             
-    motif=Motif(motif_log_odds, motif_width, TF_name=TF_name) # create the motif
+    motif=Motif(motif_log_odds, motif_width, motifID=motifID, 
+                    motifName=motifName) # create the motif
     motif.setAlphabet(alphabet)
             
     return motif
@@ -370,7 +394,7 @@ def readBGfile(bg_file):
             
     else: # we are not given of the bg file
         
-        get_uniformBG(DNA_ALPHABET)
+        bg_dict=get_uniformBG(DNA_ALPHABET)
         
         # assign the uniform distribution to the background
                 

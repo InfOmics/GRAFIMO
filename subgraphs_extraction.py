@@ -16,7 +16,7 @@ import handle_exception as he
 import sys
 import os
 
-def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline):
+def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline, gplus):
     """
         returns the data necessary for the following steps of the analysis 
         pipeline
@@ -31,33 +31,81 @@ def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline):
             fileloc (str) : path to the data obtained
     """
     
-    cwd=os.getcwd()
-    os.chdir(genome_loc)
-    
-    for i in range(20):
+    for _ in range(20):
         print('#', end='')
     print() #newline
     print("Extracting subgraphs from regions defined in ", bedfile)
     print()
-    for i in range(20):
+    for _ in range(20):
         print('#', end='')
     print()
     
-    if vg_creation_pipeline:
-        vgc_sge(bedfile, TFBS_len)
+    tmpwd='.fimovg'
+    cmd='mkdir -p {0}'.format(tmpwd)
+    code=subprocess.call(cmd, shell=True)
+    if code!=0:
+        cderr=he.throw_subprocess_error()
+        sys.exit(cderr)
+    
+    try:
+        if vg_creation_pipeline:
+            cwd=os.getcwd()
+            os.chdir(tmpwd)
+            vgc_sge(bedfile, TFBS_len)
         
-    elif not vg_creation_pipeline:
-        no_vgc_sge(genome_loc, bedfile, TFBS_len)
+        elif not vg_creation_pipeline:
+            cwd=os.getcwd()
+            os.chdir(tmpwd)
+    
+            if gplus:
+                no_vgc_sge_gplus(genome_loc, bedfile, TFBS_len)
+        
+            else:
+                if genome_loc[0]=='~':
+                    pass
+                else:
+                    genome_loc=''.join(['../', genome_loc])
+                    
+                no_vgc_sge(genome_loc, bedfile, TFBS_len)
+            
+        else:
+            pass ## TO DO: handle these situations
+        
+    except:
+        cmd='rm -rf {0}'.format(tmpwd)
+        code=subprocess.call(cmd)
+        if code!=0:
+            cderr=he.throw_subprocess_error()
+            sys.exit(cderr)
+        sys.exit(1)
         
     else:
-        pass ## TO DO: handle these situations
-    
         
-    fileloc=os.getcwd() # the tsv files are store in the cwd 
+        fileloc=os.getcwd() # the sequences to score are store in the cwd 
     
-    os.chdir(cwd) # get back to the original directory
+        os.chdir(cwd) # get back to the original directory
         
-    return fileloc
+        return fileloc
+
+def get_xg_loc(toXGpath):
+    """
+        Get the path to the directory that contains the whole genome XG
+        ----
+        Parameters:
+            toXGpath(str) : path to the xg
+        ----
+        Returns:
+            toXGpath (str) : path to the directory containing the xg
+    """
+    
+    for i in range(1, len(toXGpath)):
+        if toXGpath[-i]=='/':
+            bp=-i
+            break
+        
+    toXGpath=toXGpath[:bp]
+    
+    return toXGpath
 
 def vgc_sge(bedfile, TFBS_len):
     """
@@ -72,17 +120,20 @@ def vgc_sge(bedfile, TFBS_len):
             None
     """
     
-    bedfile='../'+bedfile
+    if bedfile[0]=='~':
+        pass
+    else:
+        bedfile=''.join(['../', bedfile])
     
     peak_no=1
     
     try:
-        bedf=open(bedfile, mode='r') # open the bedfile in read only mode
+        bed=open(bedfile, mode='r') # open the bedfile in read only mode
         
         CHR_LIST=list(range(1,23))+['X', 'Y']
-        CHR_LIST=['chr'+str(c) for c in CHR_LIST]
+        CHR_LIST=[''.join(['chr', str(c)]) for c in CHR_LIST]
         
-        for line in bedf:
+        for line in bed:
             print('Peak ', peak_no)
             chrom, start, end = line.split('\t')[0:3]
             print('Extracting region:', chrom, '['+start+'-'+end+']')
@@ -118,7 +169,7 @@ def vgc_sge(bedfile, TFBS_len):
                     
                 else:
                     # write on the stderr
-                    msg="Kmers extraction for region"+chrom+'['+start+'-'+end+']'+"finished\n"
+                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+']'+" finished\n"
                     sys.stderr.write(msg)
                 
                 cmd='rm {0}'.format(subgraph_path)
@@ -129,7 +180,7 @@ def vgc_sge(bedfile, TFBS_len):
                     sys.exit(cderr)
                     
             else:
-                warnings.warn('chromosome name not valid. Line skipped\n', Warning)
+                warnings.warn('chromosome name not valid. Region skipped\n', Warning)
                 # although we have an exception we don't stop the execution
                           
             peak_no += 1
@@ -139,7 +190,7 @@ def vgc_sge(bedfile, TFBS_len):
         sys.exit(code)
         
     else:
-        bedf.close() # close the bedfile
+        bed.close() # close the bedfile
         
 
 def no_vgc_sge(xg, bedfile, TFBS_len):
@@ -154,16 +205,20 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
         Returns:
             None
     """
+    if bedfile[0]=='~':
+        pass # given an absolute path
+    else:
+        bedfile=''.join(['../', bedfile])
     
     peak_no=1
     
     try:
-        bedf=open(bedfile, mode='r') # open the bedfile in read only mode
+        bed=open(bedfile, mode='r') # open the bedfile in read only mode
         
         CHR_LIST=list(range(1,23))+['X', 'Y']
-        CHR_LIST=['chr'+str(c) for c in CHR_LIST]
+        CHR_LIST=[''.join(['chr', str(c)]) for c in CHR_LIST]
         
-        for line in bedf:
+        for line in bed:
             print('Peak ', peak_no)
             chrom, start, end = line.split('\t')[0:3]
             print('Extracting region:', chrom, '['+start+'-'+end+']')
@@ -182,7 +237,7 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
                     warnings.warn(warn, Warning)  # although we have an exception we don't stop the execution
                     
                 else:
-                    # write on the stderr
+                    # write to stderr
                     msg="Region"+chrom+'['+start+'-'+end+']'+"extracted\n"
                     sys.stderr.write(msg) 
                 
@@ -197,7 +252,7 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
                     
                 else:
                     # write on the stderr
-                    msg="Kmers extraction for region"+chrom+'['+start+'-'+end+']'+"finished\n"
+                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+'] '+"finished\n"
                     sys.stderr.write(msg)
                 
                 cmd='rm {0}'.format(subgraph_path)
@@ -208,7 +263,7 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
                     sys.exit(cderr)
                     
             else:
-                warnings.warn('chromosome name not valid. Line skipped\n', Warning)
+                warnings.warn('chromosome name not valid. Region skipped\n', Warning)
                 # although we have an exception we don't stop the execution
                           
             peak_no += 1
@@ -218,7 +273,87 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
         sys.exit(code)
         
     finally:
-        bedf.close() # close the bedfile
+        bed.close() # close the bedfile
+        
+
+def no_vgc_sge_gplus(xg, bedfile, TFBS_len):
+    
+    if bedfile[0]=='~':
+        pass # given an absolute path --> no problems
+    else:
+        bedfile=''.join(['../', bedfile]) # given a relative path
+        
+    if xg[0]=='~':
+        pass
+    else:
+        xg=''.join(['../', xg])
+    
+    peak_no=1
+    
+    try:
+        bed=open(bedfile, mode='r')
+        
+        CHR_LIST=list(range(1,23))+['X', 'Y']
+        CHR_LIST=[''.join(['chr', str(c)]) for c in CHR_LIST]
+        
+        for line in bed:
+            
+            print('Peak ', peak_no)
+            chrom, start, end = line.split('\t')[0:3]
+            print('Extracting region:', chrom, '['+start+'-'+end+']')
+            
+            if chrom in CHR_LIST: # chromosome name is valid
+                region_index=chrom+':'+start+'-'+end
+            
+                path_id=chrom+'_'+start+'-'+end
+                subgraph_path=correct_path('./', path_id, '.vg')
+                
+                vg=''.join([xg, chrom, '.xg']) # for extraction xg is required
+                    
+                code=extract_region(vg, region_index, subgraph_path)
+            
+                if code != 0:
+                    warn="Region "+chrom+':'+'['+start+'-'+end+']'+" extraction failed!\n"
+                    warnings.warn(warn, Warning)  # although we have an exception we don't stop the execution
+                    
+                else:
+                    # write on the stderr
+                    msg="Region"+chrom+'['+start+'-'+end+']'+"extracted\n"
+                    sys.stderr.write(msg) 
+                
+                kmer_path=correct_path('./', path_id, '.tsv')
+                    
+                # vg kmer works with vg not xg graphs
+                code=retrieve_kmers(TFBS_len, subgraph_path, kmer_path)
+                    
+                if code != 0:
+                    warn="Kmers extraction from region "+chrom+':'+'['+start+'-'+end+']'+" failed!\n"
+                    warnings.warn(warn, Warning) # although we have an exception we don't stop the execution
+                    
+                else:
+                    # write on the stderr
+                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+']'+" finished\n"
+                    sys.stderr.write(msg)
+                
+                cmd='rm {0}'.format(subgraph_path)
+                code=subprocess.call(cmd, shell=True)
+            
+                if code != 0:
+                    cderr=he.throw_subprocess_error()
+                    sys.exit(cderr)
+                    
+            else:
+                warnings.warn('chromosome name not valid. Region skipped\n', Warning)
+                # although we have an exception we don't stop the execution
+                          
+            peak_no += 1
+            
+    except:
+        code=he.throw_bedfile_reading_error() # something went wrong while reading the bedfile
+        sys.exit(code)
+        
+    else:
+        bed.close() # close the bedfile
         
     
 def correct_path(path, path_id='', file_format=''):

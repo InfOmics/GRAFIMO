@@ -113,21 +113,29 @@ def create_vg(linear_genome='', vcf=''):
     cwd=os.getcwd()
     
     if not tbiexist(cwd):
-        cmd='tabix {0}'.format(vcf) # dependency needed
+        cmd='tabix -p {0}'.format(vcf) # dependency needed
         code=subprocess.call(cmd, shell=True)
         if code!=0:
             sys.exit(code)
-            
-    linear_genome='../'+linear_genome
     
-    tmpwd='.grafimo_tmp'
-    
-    cmd='mkdir -p {0}'.format(tmpwd)
-    code=subprocess.call(cmd, shell=True)
-    if code!=0:
-        sys.exit(code)
+    if linear_genome[0]=='~':
+        pass
+    else:
+        linear_genome='./'+linear_genome
         
-    os.chdir(tmpwd)
+    if vcf[0]=='~':
+        pass
+    else:
+        vcf=''.join(['./', vcf])
+    
+    #tmpwd='.fimovg_tmp'
+    
+    #cmd='mkdir -p {0}'.format(tmpwd)
+#    code=subprocess.call(cmd, shell=True)
+#    if code!=0:
+#        sys.exit(code)
+#        
+#    os.chdir(tmpwd)
     
     CHR_LIST=list(range(1,23))+['X', 'Y'] 
     
@@ -142,12 +150,10 @@ def create_vg(linear_genome='', vcf=''):
         vg=chrom+'.vg'
         xg=chrom+'.xg'
         
-        vg_construct='vg construct -C -R {0} -p -n {1}={2} -r {3} -v ../{4} > {5}'.format(chrom_n, chrom_n, \
+        vg_construct='vg construct -C -R {0} -p -n {1}={2} -r {3} -v {4} > {5}'.format(chrom_n, chrom_n, \
                                                                                      chrom, linear_genome, vcf, vg)
-        # NB ../{4} because we already accessed the temporary folder 
         
-        code=subprocess.call(vg_construct, shell=True)
-        
+        code=subprocess.call(vg_construct, shell=True)      
         if code!=0:     # we have errors in vg creation
             sys.exit(code)
             
@@ -163,7 +169,7 @@ def create_vg(linear_genome='', vcf=''):
             
     fileloc=os.getcwd()
             
-    os.chdir(cwd) # get back to origin
+    #os.chdir(cwd) # get back to origin
     
     return fileloc
 

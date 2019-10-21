@@ -52,6 +52,16 @@ def scoreGraphsPaths(subgraphs, motif, pvalueT, cores, no_reverse):
 
     else:   # the args are correct
         
+        for _ in range(20):
+            print('#', end='')
+        print() # newline
+        print('Scoring hits for motif ', motif.getMotifID())
+        print()
+        
+        for _ in range(20):
+            print('#', end='')
+        print() # newline
+        
         if cores==0:
             N_CORES=mp.cpu_count()
         else:
@@ -107,18 +117,26 @@ def scoreGraphsPaths(subgraphs, motif, pvalueT, cores, no_reverse):
             pvalues+=returnDict[key]['pvalue'].to_list()
             strands+=returnDict[key]['strand'].to_list()
             
-        finaldf=pd.DataFrame()
-        finaldf['sequence_name']=seqnames
-        finaldf['chromosome']=chroms
-        finaldf['start']=starts
-        finaldf['end']=ends
-        finaldf['sequence']=seqs
-        finaldf['score']=scores
-        finaldf['pvalue']=pvalues
-        finaldf['strand']=strands
-        
-        finaldf=finaldf.sort_values(['score'], ascending=False)
-        finaldf.index=list(range(1, len(finaldf)+1))
+        finaldf=buildDF(motif, seqnames, starts, ends, strands, scores, 
+                            pvalues, seqs)
+            
+#        hitsFound=len(seqs)
+#        
+#        motifIDs=[motif.getMotifID()]*hitsFound #create an entryy for each hit
+#        motifNames=[motif.getMotifName()]*hitsFound
+#            
+#        finaldf=pd.DataFrame()
+#        finaldf['sequence_name']=seqnames
+#        finaldf['chromosome']=chroms
+#        finaldf['start']=starts
+#        finaldf['end']=ends
+#        finaldf['sequence']=seqs
+#        finaldf['score']=scores
+#        finaldf['pvalue']=pvalues
+#        finaldf['strand']=strands
+#        
+#        finaldf=finaldf.sort_values(['score'], ascending=False)
+#        finaldf.index=list(range(1, len(finaldf)+1))
         
         return finaldf        
         
@@ -194,6 +212,7 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                     seqname=str(key)
                     chrom, pos=seqname.split('_')
                     start, end=pos.split('-')
+                    seqname=chrom+':'+start+'-'+end
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand= '+' # forward strand
                     
@@ -213,6 +232,7 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                     seqname=str(key)
                     chrom, pos=seqname.split('_')
                     start, end=pos.split('-')
+                    seqname=chrom+':'+start+'-'+end
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand='+'
 
@@ -221,6 +241,7 @@ def score_subgraphs(sgs, motif, pvalueT, no_reverse, psid, returnDict):
                     seqname=str(key)
                     chrom, pos=seqname.split('_')
                     start, end=pos.split('-')
+                    seqname=chrom+':'+start+'-'+end
                     score, pvalue=score_kmer(kmer, motif, min_score)
                     strand='-'
                     
@@ -299,7 +320,61 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = printEnd)
     # Print New Line on Complete
     if iteration == total:
-        print()     
+        print()   
+        
+def buildDF(motif, seqnames, starts, ends, strands, 
+                scores, pvalues, sequences):
+    
+    if not isinstance(motif, mtf.Motif):
+        sys.exit(1)
+        
+    if not isinstance(seqnames, list):
+        sys.exit(1)
+        
+    if not isinstance(starts, list):
+        sys.exit(1)
+        
+    if not isinstance(ends, list):
+        sys.exit(1)
+        
+    if not isinstance(strands, list):
+        sys.exit(1)
+        
+    if not isinstance(pvalues, list):
+        sys.exit(1)
+        
+    if not isinstance(sequences, list):
+        sys.exit(1)
+        
+    dflen=len(seqnames)
+    
+    if len(starts) != dflen or len(ends) != dflen or len(strands) != dflen \
+        or len(scores) != dflen or len(pvalues) != dflen or len(sequences) != dflen:
+        
+        sys.exit(1)
+        
+    else:
+        
+        motifIDs=[motif.getMotifID()]*dflen
+        motifNames=[motif.getMotifName()]*dflen
+        
+        df=pd.DataFrame()
+        df['motif_id']=motifIDs
+        df['motif_alt_id']=motifNames
+        df['sequence_name']=seqnames
+        df['start']=starts
+        df['stop']=ends
+        df['strand']=strands
+        df['score']=scores
+        df['p-value']=pvalues
+        #df['q-value']=qvalues
+        df['matched_sequence']=sequences
+        
+        df=df.sort_values(['score'], ascending=False)
+        df.index=list(range(1, dflen+1))
+        
+        return df
+        
         
         
 
