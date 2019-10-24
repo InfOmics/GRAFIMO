@@ -66,22 +66,4 @@ def printWelcomeMsg(pipeline):
     for _ in range(35):
         print('*', end='')
     print('\n')
-    
-    
-    
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    
-    
-
-    
-    
-    
+ 
