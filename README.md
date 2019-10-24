@@ -1,14 +1,14 @@
 # GRAFIMO
 Graph-based Find Individual Motif Occurrences
 
-![workflow](https://user-images.githubusercontent.com/51021763/66830153-1a0f9c00-ef55-11e9-9702-fa6ba0f2cf61.png)
-
 ## GRAFIMO installation and usage
 **dependencies needed**
 
 **pip installation**
 
-## installation test
+**docker image**
+
+## Installation test
  If everything went right type:
  ```
  grafimo --help
@@ -34,8 +34,6 @@ Remember to exit from the test directory with:
 cd ..
 ```
 
-## Docker image
-
 ## Usage
 
 Here is a brief guide to help you using GRAFIMO.
@@ -45,6 +43,7 @@ We provide the user with two possible workflows:
 - using the user variation graph
 
 **with variation graph creation**
+
 Input:
 - linear reference genome in .fa format (e.g. hg38.fa)
 - VCF file compressed (e.g. my_vcf.vcf.gz)
@@ -56,8 +55,9 @@ Output:
 - CSV file containing the sequences statistically significant with their scores
 
 Example:
+
 ```
-grafimo --linear_genome genome.fa --vcf my_vcf.vcf.gz --bedfile my_bed.bed --motif my_motif.jaspar [OPTIONS]
+grafimo --linear_genome hg.fa --vcf vcf.vcf.gz --bedfile bed.bed --motif m.jaspar [OPTIONS]
 ```
 
 **without variation graph creation**
@@ -87,7 +87,7 @@ cd test/fullpipeline
 Let's start with an example showing the creation of the variation graph.
 Run the script ```getdata_fullpipeline.sh```, by typing on your terminal:
 ```
-getdata_fullpipeline
+./getdata_fullpipeline
 ```
 
 We will get a file ```hg38.fa```, that is the fasta file for the genome assembly
@@ -166,6 +166,3 @@ add the option ```--no_reverse```to the command line.
 When all is finished you should find a directory named ```grafimo_out``` (or
 the name that you give it using the ```--o``` option).
 Enter it and you will find a CSV file ```grafimo_out.csv``` with the scoring results.
-
-
-
