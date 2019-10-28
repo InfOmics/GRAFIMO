@@ -40,7 +40,7 @@ def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline, gplus, chroms)
         print('#', end='')
     print()
     
-    tmpwd='.fimovg'
+    tmpwd='.grafimo'
     cmd='mkdir -p {0}'.format(tmpwd)
     code=subprocess.call(cmd, shell=True)
     if code!=0:
@@ -293,7 +293,7 @@ def no_vgc_sge_gplus(xg, bedfile, TFBS_len, chroms):
     else:
         bedfile=''.join(['../', bedfile]) # given a relative path
         
-    if xg[0]=='~':
+    if xg[0:6]=='/Users':
         pass
     else:
         xg=''.join(['../', xg])
