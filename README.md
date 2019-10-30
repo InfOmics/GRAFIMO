@@ -12,7 +12,11 @@ Graph-based Find Individual Motif Occurrences
 
 **docker image**
 
-This option is suggested for MacOS users.
+This option is suggested for MacOS and Windows users.
+
+Note that docker must be installed in your machine:
+- https://docs.docker.com/docker-for-windows/install/ (Windows)
+- https://docs.docker.com/docker-for-mac/install/ (MacOS)
 
 There are two available ways to get grafimo running on your machine using docker:
 - build the image by your own and run it
