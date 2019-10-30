@@ -11,6 +11,25 @@ Graph-based Find Individual Motif Occurrences
 **pip installation**
 
 **docker image**
+This option is suggested for MacOS users.
+
+There are two available ways to get grafimo running on your machine using docker:
+- build the image by your own and run it
+- run the image from the Docker Hub
+
+First option:
+ clone GRAFIMO repository, enter it, build the docker image and run it following these commands:
+ ```
+ git clone https://github.com/InfOmics/GRAFIMO.git
+ cd GRAFIMO
+ docker build -t grafimo .
+ docker run -it grafimo
+ grafimo --help
+ ```
+ If the help is correctly printed, then the image has been succesfully built.
+ 
+ Second option:
+  
 
 ## Installation test
  If everything went right type:
