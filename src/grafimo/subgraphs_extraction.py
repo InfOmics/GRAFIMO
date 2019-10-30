@@ -124,7 +124,7 @@ def vgc_sge(bedfile, TFBS_len, chroms):
             None
     """
     
-    if bedfile[0]=='~':
+    if bedfile[0:6]=='/Users':
         pass
     else:
         bedfile=''.join(['../', bedfile])
@@ -214,7 +214,7 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
         Returns:
             None
     """
-    if bedfile[0]=='~':
+    if bedfile[0:6]=='/Users':
         pass # given an absolute path
     else:
         bedfile=''.join(['../', bedfile])
@@ -288,7 +288,7 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
 
 def no_vgc_sge_gplus(xg, bedfile, TFBS_len, chroms):
         
-    if bedfile[0]=='~':
+    if bedfile[0:6]=='/Users':
         pass # given an absolute path --> no problems
     else:
         bedfile=''.join(['../', bedfile]) # given a relative path
