@@ -27,7 +27,7 @@ with open(readme, **encoding_arg) as infile:
 # definition of setup()
 setup(
       name='grafimo',
-      version='0.5',
+      version='0.6',
       author='Manuel Tognon',
       author_email='manu.tognon@gmail.com',
       url='https://github.com/InfOmics/GRAFIMO',
