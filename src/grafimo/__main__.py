@@ -307,7 +307,7 @@ def main(cmdLineargs=None):
         
     end=time.time()
     
-        ('elapsed time', end-start)
+    print('elapsed time', end-start)
     
     
 ### run main  point ###
