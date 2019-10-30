@@ -11,6 +11,7 @@ Graph-based Find Individual Motif Occurrences
 **pip installation**
 
 **docker image**
+
 This option is suggested for MacOS users.
 
 There are two available ways to get grafimo running on your machine using docker:
