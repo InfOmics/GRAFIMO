@@ -9,8 +9,9 @@ from distutils.version import LooseVersion
 from distutils.command.sdist import sdist as sd
 from distutils.command.build_ext import build_ext as be
 import sys
-from src.grafimo.grafimo import __version__ as grafimo_version
+#from src.grafimo.grafimo import __version__ as grafimo_version
 
+grafimo_version=0.8
 
 if sys.version_info[:2] < (3,7): # python 3.7 is required
     """
