@@ -4,7 +4,10 @@ Graph-based Find Individual Motif Occurrences
 ![workflow](https://user-images.githubusercontent.com/51021763/66830153-1a0f9c00-ef55-11e9-9702-fa6ba0f2cf61.png)
 
 ## GRAFIMO installation and usage
-**dependencies needed**
+**Prerequisites**
+
+You must have installed on your machine and available on your path:
+
 - vg (https://github.com/vgteam/vg)
 - tabix (https://github.com/samtools/tabix)
 
