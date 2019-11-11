@@ -17,6 +17,7 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 RUN python get-pip.py
 RUN pip install pandas
 RUN pip install numpy
+RUN pip install Cython
 
 # remove the pip installation file
 RUN rm get-pip.py
