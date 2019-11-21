@@ -9,9 +9,8 @@ from distutils.version import LooseVersion
 from distutils.command.sdist import sdist as sd
 from distutils.command.build_ext import build_ext as be
 import sys
-#from src.grafimo.grafimo import __version__ as grafimo_version
+from grafimo.grafimo import __version__ as grafimo_version
 
-grafimo_version=0.8
 
 if sys.version_info[:2] < (3,7): # python 3.7 is required
     """
@@ -51,7 +50,7 @@ def check_cython():
 
 extensions=[
     Extension('motif_processing', sources=['src/grafimo/motif_processing.pyx']),
-    Extension('GRAFIMOscoring', sources=['src/grafimo/scoring.pyx']),
+    Extension('GRAFIMOscoring', sources=['src/grafimo/GRAFIMOscoring.pyx']),
 ]
 
 class BuildExt(be):
@@ -92,6 +91,7 @@ setup(
       install_requires=[
               'pandas~=0.24.2',
               'numpy~=1.16.4',
+              'statsmodels~=0.10.0',
               ],
       extras_require={
           'dev': ['Cython']
