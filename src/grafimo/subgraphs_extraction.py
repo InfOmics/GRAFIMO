@@ -14,15 +14,21 @@ import subprocess
 import warnings
 from grafimo.GRAFIMOException import SubprocessException, NotValidFFException, FileReadingException, VGException, \
                                         PipelineException, ValueException
-from grafimo.utils import die, correct_path, CHROMS_LIST
+from grafimo.utils import die, correct_path, CHROMS_LIST, printProgressBar
 import sys
 import os
 import numpy as np
 import multiprocessing as mp
+import tempfile
 
+####################################################
+#
+#TODO: support also non conventional chromosomes
+#
+####################################################
 
 def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline, gplus, 
-                 chroms, ncores):
+                 chroms, ncores, verbose = False):
     """
         returns the data necessary for the following steps of the analysis 
         pipeline
@@ -44,8 +50,10 @@ def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline, gplus,
     printSgeWelcomeMsg(bedfile)
 
     # create a tmp working directory
-    tmpwd='.grafimo'
+    tmpwd = tempfile.mkdtemp(prefix = 'grafimo_')
 
+    # if the tmp directory name already exists remove it
+    # this shouldn't happen, but to be sure...
     if os.path.isdir(tmpwd):
         cmd='rm -rf {0}'.format(tmpwd)
         code=subprocess.call(cmd, shell=True)
@@ -54,62 +62,88 @@ def get_data(genome_loc, bedfile, TFBS_len, vg_creation_pipeline, gplus,
             raise SubprocessException(' '.join(["an error occurred executing", cmd, ". Exiting"]))
             die(1)
 
-    cmd='mkdir -p {0}'.format(tmpwd)
-    code=subprocess.call(cmd, shell=True)
-    if code!=0:
+    cmd = 'mkdir -p {0}'.format(tmpwd)
+    code = subprocess.call(cmd, shell=True)
+    if code != 0:
         raise SubprocessException(' '.join(["an error occurred executing", cmd, ". Exiting"]))
         die(1)
     
     try:
         
-        NCORES=ncores
-        bedregions=getBEDregions(bedfile)
+        NCORES = ncores
+        bedregions = getBEDregions(bedfile)
         
-        # prepare for parellelization
-        jobs=[]
-        bedregions_splt=np.array_split(bedregions, NCORES)
-        
-        cwd=os.getcwd()
+        # prepare BED for parellelization
+        jobs = []
+        proc_finished = 0
+        bedregions_splt = np.array_split(bedregions, NCORES)
+
+        # get the new location of graphs wrt the tmp dir
+        cwd = os.getcwd()
+        os.chdir(genome_loc)
+        genome_loc = os.getcwd() # now we are sure that it's an absolute path
+        os.chdir(cwd) # get back to the starting point 
+
+        # enter the tmp dir
         os.chdir(tmpwd)
-        
+
+        # print progress bar if the verbose == False
+        if not verbose:
+            printProgressBar(proc_finished, NCORES, prefix='Progress:',
+                                    suffix='Complete', length=100)
+
         if vg_creation_pipeline:
             
             for i in range(NCORES):
-                p=mp.Process(target=vgc_sge, args=(bedregions_splt[i], 
-                                                       TFBS_len, chroms))
+                p=mp.Process(target=vgc_sge, args=(genome_loc, bedregions_splt[i], 
+                                                       TFBS_len, chroms, verbose,cwd))
                 jobs.append(p)
                 p.start()
                 
             for job in jobs:
+                proc_finished += 1
+                
+                if not verbose:
+                    printProgressBar(proc_finished, NCORES, prefix='Progress:',
+                                        suffix='Complete', length=100)
+                
                 job.join() # deadlock
         
         elif not vg_creation_pipeline:
     
-            if gplus:
+            if gplus: # we have more chromosome graphs
                 for i in range(NCORES):
                     p=mp.Process(target=no_vgc_sge_gplus, 
                                      args=(genome_loc, bedregions_splt[i], 
-                                               TFBS_len, chroms))
+                                               TFBS_len, chroms, verbose, cwd))
                     jobs.append(p)
                     p.start()
                     
                 for job in jobs:
+                    proc_finished += 1
+                    
+                    if not verbose:
+                        printProgressBar(proc_finished, NCORES, prefix='Progress:',
+                                            suffix='Complete', length=100)
+                    
                     job.join() # deadlock
         
-            else:
-                if genome_loc[0:6]=='/Users':
-                    pass
-                else:
-                    genome_loc=''.join(['../', genome_loc])
+            else: # we have a single genome graph
                     
                 for i in range(NCORES):
                     p=mp.Process(target=no_vgc_sge, 
                                      args=(genome_loc, bedregions_splt[i],
-                                               TFBS_len))
+                                               TFBS_len, verbose, cwd))
                     jobs.append(p)
                     p.start()
                     
                 for job in jobs:
+                    proc_finished += 1
+                    
+                    if not verbose:
+                        printProgressBar(proc_finished, NCORES, prefix='Progress:',
+                                            suffix='Complete', length=100)
+                    
                     job.join() # deadlock
             
         else:
@@ -148,20 +182,21 @@ def get_xg_loc(toXGpath):
     """
     
     for i in range(1, len(toXGpath)):
-        if toXGpath[-i]=='/':
-            bp=-i
+        if toXGpath[-i] == '/':
+            bp = -i
             break
         
-    toXGpath=toXGpath[:bp]
+    toXGpath = toXGpath[:bp]
     
     return toXGpath
 
-def vgc_sge(bedfile, TFBS_len, chroms):
+def vgc_sge(xg_loc, bedfile, TFBS_len, chroms, verbose, cwd):
     """
         Extract the subgraphs from the genome graph and the sequences to score
         from them (step to follow in the pipeline with the vg creation)
         ----
         Parameters:
+            xg_loc (str) : path to the genome graphs location
             bedfile (list) : slice of regions to extract
             TFBS_len (int) : motif width
             chroms (list) : list of chromosomes to take into account during the
@@ -171,65 +206,72 @@ def vgc_sge(bedfile, TFBS_len, chroms):
             None
     """
     
+    if xg_loc[-1] == "/":
+        pass
+    else:
+        xg_loc = ''.join([xg_loc, "/"])
     
     try:
 
         # look at user defined chromosomes
         if chroms:
-            CHR_LIST=[''.join(['chr', c]) for c in chroms]
+            CHR_LIST = [''.join(['chr', c]) for c in chroms]
 
         # look at all chromosomes
         else:
-            CHR_LIST=[''.join(['chr', c]) for c in CHROMS_LIST]
+            CHR_LIST = [''.join(['chr', c]) for c in CHROMS_LIST]
         
         for line in bedfile:
             chrom, start, end = line.split('\t')[0:3]
             #chromid=chrom.replace('chr', '')
             
             if chrom in CHR_LIST: # chromosome name is valid
-                region_index=chrom+':'+start+'-'+end
-                print('Extracting region:', region_index)
+                region_index = chrom + ':' + start + '-' + end
+                if verbose:
+                    print('Extracting region:', region_index)
             
-                path_id=chrom+'_'+start+'-'+end
-                subgraph_path=correct_path('./', path_id, '.vg')
+                path_id = chrom + '_' + start + '-' + end
+                kmers_file = correct_path('./', path_id, '.tsv')
             
-                vg=''.join(['../', chrom, '.xg']) # for extraction is required the xg
+                xg = ''.join([xg_loc, chrom, '.xg']) # for extraction is required the xg
                 
-                code=extract_region(vg, region_index, subgraph_path)
+                code = get_kmers(xg, region_index, TFBS_len, kmers_file)
             
                 if code != 0:
-                    warn="Region "+chrom+':'+'['+start+'-'+end+']'+" extraction failed!\n"
-                    warnings.warn(warn, Warning)  # although we have an exception we don't stop the execution
+                    if verbose:
+                        warn = "Region "+chrom+':'+'['+start+'-'+end+']'+" extraction failed!\n"
+                        sys.stderr.write(warn)  # it can happen that wasn't possible to extract a peak
+                                                # but we don't stop the execution
+                    else:
+                        pass
                     
                 else:
-                    # write on the stderr
-                    msg="Region "+chrom+':['+start+'-'+end+']'+" extracted\n"
-                    sys.stderr.write(msg) 
+                   
+                    if verbose:
+                        # write on the stderr
+                        msg = "Region "+chrom+':['+start+'-'+end+']'+" extracted\n"
+                        sys.stderr.write(msg)
+                    else:
+                        pass 
                 
-                kmer_path=correct_path('./', path_id, '.tsv')
-                
-                # vg kmer works with vg not xg graphs
-                code=retrieve_kmers(TFBS_len, subgraph_path, kmer_path)
+                # if was not possible to extract the region we go to the next one
+                if os.stat(kmers_file).st_size <= 0:
+
+                    cmd = 'rm {0}'.format(kmers_file) # remove the empty file 
+                    code = subprocess.call(cmd, shell=True)
             
-                if code != 0:
-                    warn="Kmers extraction from region "+chrom+':'+'['+start+'-'+end+']'+" failed!\n"
-                    warnings.warn(warn, Warning) # although we have an exception we don't stop the execution
+                    if code != 0:
+                        raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
+                        die(1)
                     
-                else:
-                    # write on the stderr
-                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+']'+" finished\n"
-                    sys.stderr.write(msg)
-                
-                cmd='rm {0}'.format(subgraph_path)
-                code=subprocess.call(cmd, shell=True)
-            
-                if code != 0:
-                    raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
-                    die(1)
+                    continue
                     
             else:
-                warnings.warn('chromosome name not valid. Region skipped\n', VGExtractionWarning)
-                # although we have an exception we don't stop the execution
+                if verbose:
+                    warn = 'chromosome name not valid. Region skipped\n'
+                    sys.stderr.write(warn) # only canonical chromosomes are supported
+                else:   
+                    pass
             
     except:
         raise FileReadingException("Unable to extract regions")
@@ -239,70 +281,79 @@ def vgc_sge(bedfile, TFBS_len, chroms):
         pass
         
 
-def no_vgc_sge(xg, bedfile, TFBS_len):
+def no_vgc_sge(xg, bedfile, TFBS_len, chroms, verbose, cwd):
     """
         Extract the subgraphs from the genome graph and the sequences to score
         from them (step to follow in the pipeline without the vg creation)
         ----
         Parameters:
+            xg (str) : genome graph
             bedfile (str) : path to the bedfile
             TFBS_len (int) : motif width
+            chroms (list) : list of chromosomes from which the regions
+                            will be extracted
         ----
         Returns:
             None
     """
-
     
     try:
+
+        if chroms:
+            CHR_LIST = [''.join(['chr', c]) for c in chroms]
+            
+        else:
+            CHR_LIST = [''.join(['chr', c]) for c in CHROMS_LIST]
         
         for line in bedfile:
-
-            CHR_LIST=[''.join(['chr', c]) for c in CHROMS_LIST]
 
             chrom, start, end = line.split('\t')[0:3]
             
             if chrom in CHR_LIST: # chromosome name is valid
-                region_index=chrom+':'+start+'-'+end
-                print("Extracting region:", region_index)
-            
-                path_id=chrom+'_'+start+'-'+end
-                subgraph_path=correct_path('./', path_id, '.vg')
+                region_index = chrom + ':' + start + '-' + end
                 
-                code=extract_region(xg, region_index, subgraph_path)
+                if verbose:
+                    print("Extracting region:", region_index)
+            
+                path_id = chrom + '_' + start + '-' + end
+                kmers_file = correct_path('./', path_id, '.tsv')
+                
+                code = get_kmers(xg, region_index, TFBS_len, kmers_file)
             
                 if code != 0:
-                    warn="Region "+chrom+':'+'['+start+'-'+end+']'+" extraction failed!\n"
-                    warnings.warn(warn, Warning)  # although we have an exception we don't stop the execution
-                    
+                    if verbose:
+                        warn = "Region " + chrom + ':' + '[' + start + '-' + end + ']' + " extraction failed!\n"
+                        sys.stderr.write(warn)  # it can happen that wasn't possible to extract a peak
+                                                # but we don't stop the execution
+                    else:
+                        pass
+
                 else:
-                    # write to stderr
-                    msg="Region "+chrom+':['+start+'-'+end+']'+" extracted\n"
-                    sys.stderr.write(msg) 
-                
-                kmer_path=correct_path('../', path_id, '.tsv')
-                
-                # vg kmer works with vg not xg graphs
-                code=retrieve_kmers(TFBS_len, subgraph_path, kmer_path)
+                    if verbose:
+                        # write to stderr
+                        msg = "Region " + chrom + ':[' + start + '-' + end + ']' + " extracted\n"
+                        sys.stderr.write(msg)
+                    else:
+                        pass 
+
+                # if was not possible to extract the region we go to the next one
+                if os.stat(kmers_file).st_size <= 0:
+
+                    cmd = 'rm {0}'.format(kmers_file) # remove the empty file 
+                    code = subprocess.call(cmd, shell=True)
             
-                if code != 0:
-                    warn="Kmers extraction from region "+chrom+':'+'['+start+'-'+end+']'+" failed!\n"
-                    warnings.warn(warn, Warning) # although we have an exception we don't stop the execution
+                    if code != 0:
+                        raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
+                        die(1)
                     
-                else:
-                    # write on the stderr
-                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+'] '+"finished\n"
-                    sys.stderr.write(msg)
-                
-                cmd='rm {0}'.format(subgraph_path)
-                code=subprocess.call(cmd, shell=True)
-            
-                if code != 0:
-                    raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
-                    die(1)
+                    continue
                     
             else:
-                warnings.warn('chromosome name not valid. Region skipped\n', VGExtractionWarning)
-                # although we have an exception we don't stop the execution
+                if verbose:
+                    warn = 'chromosome name not valid. Region skipped\n'
+                    sys.stderr.write(warn) # only canonical chromosomes are supported
+                else:
+                    pass
             
     except:
         raise FileReadingException("Unable to extract regions")
@@ -311,14 +362,14 @@ def no_vgc_sge(xg, bedfile, TFBS_len):
     else:
         pass
 
-def no_vgc_sge_gplus(xg, bedfile, TFBS_len, chroms):
+def no_vgc_sge_gplus(xg_loc, bedfile, TFBS_len, chroms, verbose, cwd):
     """
         Extract the subgraphs from the selected chromosomes and
         the sequences to score from them (step to follow in the
         pipeline without the vg creation)
         ----
         Parameters:
-            xg (str) : path to the chromosomes variation graphs
+            xg_loc (str) : path to the chromosomes variation graphs
             bedfile (list) : slice of regions to extract
             TFBS_len (int) : motif width
             chroms (list) : list of chromosomes from which the regions
@@ -327,68 +378,71 @@ def no_vgc_sge_gplus(xg, bedfile, TFBS_len, chroms):
         Returns:
             None
     """
-        
-    # check the path to xgs
-    if xg[0:6]=='/Users':
+    
+    if xg_loc[-1] == '/':
         pass
     else:
-        xg=''.join(['../', xg])
-    
+        xg_loc = ''.join([xg_loc, '/'])
+
     try:
         
         if chroms:
-            CHR_LIST=[''.join(['chr', c]) for c in chroms]
+            CHR_LIST = [''.join(['chr', c]) for c in chroms]
             
         else:
-            CHR_LIST=[''.join(['chr', c]) for c in CHROMS_LIST]
+            CHR_LIST = [''.join(['chr', c]) for c in CHROMS_LIST]
         
         for line in bedfile:
 
             chrom, start, end = line.split('\t')[0:3]
             
             if chrom in CHR_LIST: # chromosome name is valid
-                region_index=chrom+':'+start+'-'+end
-                print('Extracting region:', region_index)
-            
-                path_id=chrom+'_'+start+'-'+end
-                subgraph_path=correct_path('./', path_id, '.vg')
+                region_index = chrom + ':' + start + '-' + end
                 
-                vg=''.join([xg, chrom, '.xg']) # for extraction is required the xg
+                if verbose:
+                    print('Extracting region:', region_index)
+            
+                path_id = chrom + '_' + start + '-' + end
+                kmers_file = correct_path('./', path_id, '.tsv')
+                
+                xg = ''.join([xg_loc, chrom, '.xg']) # for extraction is required the xg
                     
-                code=extract_region(vg, region_index, subgraph_path)
+                code = get_kmers(xg, region_index, TFBS_len, kmers_file)
             
                 if code != 0:
-                    warn="Region "+chrom+':'+'['+start+'-'+end+']'+" extraction failed!\n"
-                    warnings.warn(warn, Warning)  # although we have an exception we don't stop the execution
+                    if verbose:
+                        warn = "Region " + chrom + ':' + '[' + start + '-' + end + ']' + " extraction failed!\n"
+                        sys.stderr.write(warn)  # it can happen that wasn't possible to extract a peak
+                                                # but we don't stop the execution
+                    else:
+                        pass
                     
                 else:
-                    # write on the stderr
-                    msg="Region "+chrom+':['+start+'-'+end+']'+" extracted\n"
-                    sys.stderr.write(msg) 
-                
-                kmer_path=correct_path('./', path_id, '.tsv')
-                    
-                # vg kmer works with vg not xg graphs
-                code=retrieve_kmers(TFBS_len, subgraph_path, kmer_path)
-                    
-                if code != 0:
-                    warn="Kmers extraction from region "+chrom+':'+'['+start+'-'+end+']'+" failed!\n"
-                    warnings.warn(warn, Warning) # although we have an exception we don't stop the execution
-                    
-                else:
-                    # write on the stderr
-                    msg="Kmers extraction for region "+chrom+':['+start+'-'+end+']'+" finished\n"
-                    sys.stderr.write(msg)
-                
-                cmd='rm {0}'.format(subgraph_path)
-                code=subprocess.call(cmd, shell=True)
+                    if verbose:
+                        # write on the stderr
+                        msg="Region "+chrom+':['+start+'-'+end+']'+" extracted\n"
+                        sys.stderr.write(msg)
+                    else:
+                        pass 
+
+                # if was not possible to extract the region we go to the next one
+                if os.stat(kmers_file).st_size <= 0:
+
+                    cmd = 'rm {0}'.format(kmers_file) # remove the empty file 
+                    code = subprocess.call(cmd, shell=True)
             
-                if code != 0:
-                    raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
-                    die(1)
+                    if code != 0:
+                        raise SubprocessException(' '.join(["An error occurred while executing", cmd, ". Exiting"]))
+                        die(1)
                     
+                    continue
+                
             else:
-                pass # ignore if not in the search space
+                if verbose:
+                    warn = 'chromosome name not valid. Region skipped\n'
+                    sys.stderr.write(warn) # only canonical chromosomes are supported
+                else:
+                    pass # we simply ignore this situation
             
     except:
         raise FileReadingException("Unable to extract regions")
@@ -398,40 +452,27 @@ def no_vgc_sge_gplus(xg, bedfile, TFBS_len, chroms):
         pass
 
 
-def retrieve_kmers(TFBS_len, subgraphs_path, kmers_path):
+def get_kmers(xg, region, TFBS_len, seqs_file):
     """
-        Obtain the sequences from the subgraphs
+        Obtain the sequences of length k inside the queried
+        region
         ----
         Prameters:
+            xg (str) : path to the 
+            region (str) : region to query on the graph
             TFBS_len (int) : motif width
-            subgraphs_path (str) : path to the subgraphs
-            kmers_path (str) : path to which the sequences will be stored
+            seqs_file (str) : name of the file where the
+                                retrieved k-mers will be
+                                put
         ----
         Returns:
             code (int) : success or not of subprocess.call()
     """    
-    vg_km_cmd='vg kmers -k {0} {1} > {2}'.format(str(TFBS_len), subgraphs_path, kmers_path)
-    code=subprocess.call(vg_km_cmd, shell=True)
+    cmd = 'vg find -x {0} -E -p {1} -K {2} > {3}'.format(xg, region, TFBS_len, seqs_file)
+    code = subprocess.call(cmd, shell=True)
     
     return code
 
-def extract_region(genome, region_index, subgraphs_path):
-    """
-        Extract the subgraphs
-        ----
-        Parameters:
-            genome (str) : path to the genome
-            region_index (str) : region to extract
-            subgraphs_path (str) : path to which the subgraphs will be stored
-        ----
-        Returns:
-            code (int) : success or not of subprocess.call()
-    """
-    
-    vg_sg_cmd='vg find -x {0} -p {1} > {2}'.format(genome, region_index, subgraphs_path)
-    code=subprocess.call(vg_sg_cmd, shell=True)
-    
-    return code
 
 def isGraph_genome_xg(graph_genome):
     """
@@ -445,7 +486,7 @@ def isGraph_genome_xg(graph_genome):
     """
     
     if not isinstance(graph_genome, str):
-        raise Value("Invalid path to the genome graph. Cannot proceed")
+        raise VGException("Invalid path to the genome graph. Cannot proceed")
         die(1)
 
     if graph_genome.split('.')[-1] == 'xg':
@@ -457,6 +498,7 @@ def isGraph_genome_xg(graph_genome):
         raise VGException(msg)
         die(1)
     
+
 def getBEDregions(bedfile):
     """
         Function to retrieve the number of regions defined in the given BED
@@ -493,16 +535,7 @@ def getBEDregions(bedfile):
 
 def printSgeWelcomeMsg(bedfile):
 
-    print()
-    for _ in range(20):
-        print('#', end='')
     print()  # newline
     print("\nExtracting subgraphs from regions defined in ", bedfile)
     print()
-    for _ in range(20):
-        print('#', end='')
-    print()
-
-class VGExtractionWarning(UserWarning): # used for the extraction warning handling
-    pass
 

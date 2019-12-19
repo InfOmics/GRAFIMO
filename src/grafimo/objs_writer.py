@@ -15,9 +15,9 @@ import os
 import subprocess
 import pandas as pd
 from grafimo.GRAFIMOException import ValueException, SubprocessException, NoDataFrameException, FileReadingException
-from grafimo.utils import die
+from grafimo.utils import die, unique_lst
 
-def writeresults(objs, dest):
+def writeresults(objs, dest, motifID, top_graphs, genome_loc):
     
     if not isinstance(objs, list):
         raise ValueException("The results to write must be in a list")
@@ -28,6 +28,8 @@ def writeresults(objs, dest):
         die(1)
         
     cwd=os.getcwd()
+
+    dest = '_'.join([dest, motifID])
     
     if not os.path.isdir(dest): # tthe directory not exist
     
@@ -47,6 +49,7 @@ def writeresults(objs, dest):
         # the content will be automatically rewritten
     
     # write objects in dest
+    printWriteResultsMsg(dest)
     
     for obj in objs:
         
@@ -61,14 +64,42 @@ def writeresults(objs, dest):
             
             # write the gff
             writeGFF3(df)
-            
-            
-        
-        ### if matplotlib istance ###
-        ## write plots in dest ##
-        
     
+    """
+    # get the graphs of the top n regions 
+    if top_graphs > 0:
+        # get the region list (it's already sorted)
+        regions = df['sequence_name'].to_list()
+        regions = unique_lst(regions)
+
+        if len(regions) < top_graphs:
+            top_graphs = len(regions)
+            print("Warning: possible to visualize only the top " + str(top_graphs) + " regions")
+
+        # create the directory for the images of the regions
+        image_dir = "top_graphs"
+        cmd = "mkdir -p {0}".format(image_dir)
+
+        code = subprocess.call(cmd, shell = True)
+
+        if code != 0:
+            raise SubprocessException("Error while executing " + cmd)
+            die(1)
+
+        # enter the newly created directory
+        os.chdir(image_dir)
+
+        print("Writing the top " + str(top_graphs) + " graphs in " + image_dir)
+        print()
+
+        for i in range(top_graphs):
+            region = regions[i]
+
+            getRegion_graph(region, genome_loc)
+    """
+
     os.chdir(cwd)
+
     
 def writeGFF3(data):
     """
@@ -130,3 +161,59 @@ def writeGFF3(data):
 
     finally:
         f.close() # close the file stream
+
+
+def getRegion_graph(region, genome_loc):
+    """
+        Extract the queried region from the graph genome
+        ----
+        Parameters:
+            region (str) : region to extract
+            genome_loc (str) : path to the genome
+        ----
+        Returns:
+            None 
+    """
+
+    if genome_loc.split('.')[-1] == 'xg': # we have the whole genome graph
+        
+        if not os.path.isfile(genome_loc):
+            raise Exception("Unable to locate genome " + genome_loc)
+            die(1)
+
+        png_file = ''.join([region, '.png'])
+
+        # extract the PNG of region
+        cmd = "vg find -x {0} -p {1} | vg view -dp | dot -Tpng -o {2}".format(genome_loc, region, png_file)
+        code = subprocess.call(cmd, shell = True)
+
+        if code != 0:
+            raise SubprocessException("Error while executing " + cmd)
+            die(1)
+
+    else: # we have a directory containing the genome graphs
+
+        if not os.path.isdir(genome_loc):
+            raise Exception("Unable to locate directory " + genome_loc)
+            die(1)
+
+        xg = ''.join([region.split(':')[0], '.xg'])
+
+        png_file = ''.join([region, '.png'])
+        
+        # extract the PNG of the region
+        cmd = "vg find -x {0} -p {1} | vg view -dp | dot -Tpng -o {2}".format(xg, region, png_file)
+        code = subprocess.call(cmd, shell = True)
+
+        if code != 0:
+            raise SubprocessException("Error while executing " + cmd)
+            die(1)
+
+
+def printWriteResultsMsg(dest):
+
+    print()
+    msg = ' '.join(["Writing results in", dest])
+    print(msg)
+    print()
+
