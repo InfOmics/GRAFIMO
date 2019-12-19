@@ -28,7 +28,7 @@
 chr22=`gunzip chr22.fa.gz; ls chr22.fa`
 
 # get the VCF from The 1000 genome project
-wget http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz
+wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz
 
 # assign it to a variable
 variants=`ls ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz`
@@ -36,9 +36,8 @@ bed=`ls 200peaks_ENCFF519CXF_chr22.bed`
 CTCF=`ls MA0139.1.jaspar`
 bg=`ls bg_nt`
 
-
 # run the test
-grafimo --linear_genome $chr22 --chroms 22 --vcf $variants --bedfile $bed --motif $CTCF --bgfile $bg --pseudo 0.1 --pvalueT 1e-3
+grafimo -l $chr22 -c 22 -v $variants --bedfile $bed --motif $CTCF --bgfile $bg --pseudo 0.1 --pvalueT 1e-4
 
 # What we did?
 #
