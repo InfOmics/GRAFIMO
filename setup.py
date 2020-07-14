@@ -49,7 +49,6 @@ def check_cython():
 
 extensions=[
     Extension('motif_processing', sources=['src/grafimo/motif_processing.pyx']),
-    Extension('GRAFIMOscoring', sources=['src/grafimo/GRAFIMOscoring.pyx']),
 ]
 
 class BuildExt(be):
@@ -74,7 +73,7 @@ class SDist(sd):
 # definition of setup()
 setup(
       name='grafimo',
-      version='0.10',
+      version='1.0.1',
       author='Manuel Tognon',
       author_email='manu.tognon@gmail.com',
       url='https://github.com/InfOmics/GRAFIMO',
