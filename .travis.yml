@@ -19,5 +19,7 @@ install:
   - pip3 install numba
   - pyhton3 setup.py install --user
 
-script: pytest
+script:
+  - grafimo -h
+  - pytest
 
