@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Install external dependendecies required to run GRAFIMO:
 # - vg
