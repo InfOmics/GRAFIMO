@@ -17,7 +17,7 @@ install:
   - pip3 install statsmodels
   - pip3 install sphinx
   - pip3 install numba
-  - pyhton3 setup.py install --user
+  - python3 setup.py install --user
 
 script:
   - grafimo -h
