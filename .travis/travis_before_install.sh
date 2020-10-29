@@ -13,6 +13,6 @@ vgpath=`pwd`
 export PATH=$vgpath:$PATH 
 cd ..
 
-sudo apt-get install tabix
-sudo apt-get install graphviz
+#sudo apt-get install tabix
+#sudo apt-get install graphviz
 
