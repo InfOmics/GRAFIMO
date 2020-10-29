@@ -3,7 +3,7 @@ language: python
 matrix:
   include:
     - os: linux
-      dist: Focal
+      dist: Bionic
       python: 3.7
 
 before_install: 
