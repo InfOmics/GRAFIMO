@@ -11,11 +11,19 @@ import os
 
 
 def test_vg_construct():
+    
+    cwd = os.getcwd()
+    if cwd.split("/")[-1] == "tests":
+        prefix = "test_data"
+    elif cwd.split("/")[-1] == "GRAFIMO":
+        prefix = "tests/test_data"
+    else:
+        assert (1==0)  # return error
 
-    test_ref = "test_data/input/test.fa"
-    test_vcf = "test_data/input/test.vcf.gz"
+    test_ref = os.path.join(prefix, "input/test.fa")
+    test_vcf = os.path.join(prefix, "input/test.vcf.gz")
 
-    expected_vg = "test_data/expected_results/expected.vg"
+    expected_vg = os.path.join(prefix, "expected_results/expected.vg")
     test_vg = "test.vg"
 
     # create vg and check results
@@ -29,14 +37,22 @@ def test_vg_construct():
 
 
 def test_vg_index():
+    
+    cwd = os.getcwd()
+    if cwd.split("/")[-1] == "tests":
+        prefix = "test_data"
+    elif cwd.split("/")[-1] == "GRAFIMO":
+        prefix = "tests/test_data"
+    else:
+        assert (1==0)  # return error
 
     test_vg = "test.vg"
     test_xg = "test.xg"
     test_gbwt = "test.gbwt"
-    test_vcf = "test_data/input/test.vcf.gz"
+    test_vcf = os.path.join(prefix, "input/test.vcf.gz")
 
-    expected_xg = "test_data/expected_results/expected.xg"
-    expected_gbwt = "test_data/expected_results/expected.gbwt"
+    expected_xg = os.path.join(prefix, "expected_results/expected.xg")
+    expected_gbwt = os.path.join(prefix, "expected_results/expected.gbwt")
 
     # index vg and check results
     done = indexVG(test_vg, test_vcf, 1, True)
@@ -49,13 +65,21 @@ def test_vg_index():
 
 
 def test_sequence_extraction():
+    
+    cwd = os.getcwd()
+    if cwd.split("/")[-1] == "tests":
+        prefix = "test_data"
+    elif cwd.split("/")[-1] == "GRAFIMO":
+        prefix = "tests/test_data"
+    else:
+        assert (1==0)  # return error
 
     vg = "test.xg"
     region = "x:0-20"
     width = 19
 
     seqs_extracted = "seqs_extracted.tsv"
-    expected_seqs = "test_data/expected_results/expected_seqs.tsv"
+    expected_seqs = os.path.join(prefix, "expected_results/expected_seqs.tsv")
 
     # extract sequences and check results
     query = "vg find -x {0} -E -p {1} -K {2} > {3}".format(vg, region, width, seqs_extracted)
@@ -72,9 +96,17 @@ def test_sequence_extraction():
 
 
 def test_motif_processing():
+    
+    cwd = os.getcwd()
+    if cwd.split("/")[-1] == "tests":
+        prefix = "test_data"
+    elif cwd.split("/")[-1] == "GRAFIMO":
+        prefix = "tests/test_data"
+    else:
+        assert (1==0)  # return error
 
-    er_motif_file = "test_data/expected_results/motif_processing_test.txt"
-    infile_meme = "test_data/input/MA0139.1.meme"  # CTCF motif in MEME format
+    er_motif_file = os.path.join(prefix, "expected_results/motif_processing_test.txt")
+    infile_meme = os.path.join(prefix, "input/MA0139.1.meme")  # CTCF motif in MEME format
 
     # read the expected processed motif
     er_motif = np.loadtxt(er_motif_file).astype(int)
@@ -90,14 +122,25 @@ def test_motif_processing():
 
 
 def test_scoring():
+    
+    cwd = os.getcwd()
+    if cwd.split("/")[-1] == "tests":
+        prefix = "test_data"
+    elif cwd.split("/")[-1] == "GRAFIMO":
+        prefix = "tests/test_data"
+    else:
+        assert (1==0)  # return error
 
-    infile_meme = "test_data/input/MA0139.1.meme"  # CTCF motif in MEME format
+    infile_meme = os.path.join("input/MA0139.1.meme")  # CTCF motif in MEME format
     motif = build_motif_MEME(infile_meme, "UNIF", 0.1, False, mp.cpu_count(), False)[0]
 
     input_seqs = "test_data/input/"
 
     # read the expected results
-    expected_results = pd.read_csv("test_data/expected_results/scoring_results.tsv", sep="\t", index_col=0)
+    expected_results = pd.read_csv(
+        os.path.join(prefix, "expected_results/scoring_results.tsv"), 
+        sep="\t", index_col=0
+        )
 
     # test scoring procedure
     results = compute_results(motif, input_seqs, None, True)
