@@ -1,10 +1,7 @@
 language: python
 
-matrix:
-  include:
-    - os: linux
-      dist: Bionic
-      python: 3.7
+python: 
+  - "3.7"
 
 before_install: 
   - chmod +x ./.travis/travis_before_install.sh
@@ -19,6 +16,11 @@ install:
   - pip3 install statsmodels
   - pip3 install sphinx
   - pip3 install numba
+  - installationpath=$PWD
+  - echo $installationpath
+  - ls -al
+  - cd ..
+  - ls -al
   - python3 setup.py install --user
 
 script:
