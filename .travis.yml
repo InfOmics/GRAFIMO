@@ -16,11 +16,10 @@ install:
   - pip3 install statsmodels
   - pip3 install sphinx
   - pip3 install numba
+  - pip3 install grafimo
+  - grafimo -h
   - installationpath=$PWD
   - echo $installationpath
-  - ls -al
-  - cd ..
-  - ls -al
   - python3 setup.py install --user
 
 script:
