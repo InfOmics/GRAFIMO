@@ -19,7 +19,6 @@ install:
   - installationpath=$PWD
   - echo $installationpath
   - python3 setup.py install
-  - cd ./tests
 
 script:
   - grafimo -h
