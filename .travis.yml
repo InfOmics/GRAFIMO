@@ -20,6 +20,7 @@ install:
   - echo $installationpath
   - python3 setup.py install
   - ls -al
+  - cd tests
 
 script:
   - grafimo -h
