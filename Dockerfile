@@ -8,9 +8,11 @@ RUN apt-get update
 # Upgrade Ubuntu Software repository
 RUN apt-get upgrade -y
 
+# Install wget and curl
 RUN apt-get install wget -y
 RUN apt-get install curl -y
 
+# Download vg binaries and set them available in PATH
 RUN mkdir /vg_dir
 RUN cd /vg_dir
 RUN wget https://github.com/vgteam/vg/releases/download/v1.27.1/vg
