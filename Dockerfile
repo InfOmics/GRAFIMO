@@ -55,5 +55,3 @@ RUN rm get-pip.py
 # Download and build GRAFIMO
 RUN pip3 install grafimo
 
-# Set expose to port 80 and 443
-EXPOSE 80 443
