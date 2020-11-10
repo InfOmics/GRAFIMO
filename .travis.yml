@@ -19,7 +19,10 @@ install:
   - installationpath=$PWD
   - echo $installationpath
   - python3 setup.py install
+  - cd tests
+  - installationpath=$PWD
+  - echo $installationpath
 
 script:
   - grafimo -h
-
+  - pytest
