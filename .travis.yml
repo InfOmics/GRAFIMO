@@ -1,11 +1,16 @@
+# Control file for continuous integration testing at http://travis-ci.org/
+
 language: python
+sudo: required
 
 python: 
   - "3.7"
 
 before_install: 
+  - cd ..
   - chmod +x ./.travis/travis_before_install.sh
   - ./.travis/travis_before_install.sh
+  - cd GRAFIMO
 
 install:
   - pip3 install Cython
