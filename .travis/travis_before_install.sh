@@ -1,18 +1,23 @@
 #!/bin/bash
 
-# Install external dependendecies required to run GRAFIMO:
+# Install external dependendecies required to run GRAFIMO before integration 
+# testing on http://travis-ci.org/:
 # - vg
 # - tabix
 # - graphviz
 
-mkdir vg
+# precompiled binaries are no more available for vg, so build it from source
+git clone --recursive https://github.com/vgteam/vg.git
 cd vg
-wget https://github.com/vgteam/vg/releases/download/v1.27.1/vg
-chmod +x ./vg
-vgpath=`pwd`
-export PATH=$vgpath:$PATH 
-cd ..
+# solve dependencies required by vg
+make get-deps
+# start build
+chmod +x ./source_me.sh
+. ./source_me.sh && make
 
-#sudo apt-get install tabix
-#sudo apt-get install graphviz
+# tabix already comes with vg
+
+# exit from vg directory and make sure it is available in the path
+cd ..
+vg find
 
