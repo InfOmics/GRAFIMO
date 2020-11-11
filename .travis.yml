@@ -10,8 +10,8 @@ python:
 
 before_install: 
   - cd ..
-  - chmod +x ./.travis/travis_before_install.sh
-  - ./.travis/travis_before_install.sh
+  - chmod +x ./GRAFIMO/.travis/travis_before_install.sh
+  - ./GRAFIMO/.travis/travis_before_install.sh
   - cd GRAFIMO
 
 install:
