@@ -4,9 +4,47 @@ language: python
 sudo: required
 os: linux
 dist: bionic
+compiler: gcc
 
 python: 
   - "3.7"
+  
+ addons: 
+  apt:
+    update: true
+    packages: 
+      - bc 
+      - rs 
+      - jq
+      - samtools
+      - cmake
+      - protobuf-compiler
+      - libprotoc-dev
+      - libprotobuf-dev
+      - libjansson-dev
+      - libbz2-dev
+      - libncurses5-dev
+      - automake
+      - libtool
+      - curl
+      - unzip
+      - redland-utils
+      - librdf-dev
+      - pkg-config
+      - wget 
+      - gtk-doc-tools
+      - raptor2-utils
+      - rasqal-utils
+      - bison
+      - flex
+      - gawk
+      - libgoogle-perftools-dev
+      - liblz4-dev
+      - liblzma-dev
+      - libcairo2-dev
+      - libpixman-1-dev
+      - libffi-dev
+      - doxygen
 
 before_install: 
   - cd ..
