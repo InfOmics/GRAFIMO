@@ -39,6 +39,14 @@ sudo apt-get install libcairo2-dev
 sudo apt-get install libpixman-1-dev
 sudo apt-get install libffi-dev
 sudo apt-get install doxygen
+
+sudo apt-get install curl
+
+PROTOC_ZIP=protoc-3.14.0-linux-x86_64.zip
+curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-linux-x86_64.zip
+sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+rm -f $PROTOC_ZIP
                      
 # precompiled binaries are no more available for vg, so build it from source
 git clone --recursive https://github.com/vgteam/vg.git
