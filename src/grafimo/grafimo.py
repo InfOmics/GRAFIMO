@@ -21,7 +21,7 @@ import os
 
 
 # version of GRAFIMO
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 
 def buildvg(args_obj: BuildVG) -> None:
@@ -214,14 +214,14 @@ def printWelcomeMsg() -> None:
     """Prints the welcome message for GRAFIMO
   
     """
-    for _ in range(80):
+    for _ in range(50):
         print('*', end='')
 
     print()  # newline
     print("\n\tWELCOME TO GRAFIMO v", __version__, sep='')
     print()  # newline
 
-    for _ in range(80):
+    for _ in range(50):
         print('*', end='')
     print()  # newline
 
