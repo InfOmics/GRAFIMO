@@ -1,0 +1,53 @@
+##fileformat=VCFv4.1
+##fileDate=20170619
+##source=mutatrix population genome simulator
+##seed=1497868566
+##reference=xy.fa
+##phasing=true
+##commandline=/home/erik/mutatrix/mutatrix -d -n 1 -p 2 -s 0.01 -i 0.005 xy.fa
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Alternate allele count">
+##INFO=<ID=TYPE,Number=A,Type=String,Description="Type of each allele (snp, ins, del, mnp, complex)">
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples at the site">
+##INFO=<ID=NA,Number=1,Type=Integer,Description="Number of alternate alleles">
+##INFO=<ID=LEN,Number=A,Type=Integer,Description="Length of each alternate allele">
+##INFO=<ID=MICROSAT,Number=0,Type=Flag,Description="Generated at a sequence repeat loci">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	1
+x	12	.	T	TG	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins;MICROSAT	GT	1|0
+x	22	.	C	CC	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|1
+x	42	.	A	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+x	58	.	G	A	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+x	186	.	AG	A	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=del	GT	1|1
+x	189	.	C	CC	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|1
+x	255	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	0|1
+x	259	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	0|1
+x	327	.	TT	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=del	GT	1|0
+x	347	.	A	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+x	368	.	GG	G	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=del	GT	1|1
+x	432	.	T	TT	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|1
+x	583	.	A	C	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|1
+x	600	.	A	G	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|1
+x	613	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+x	670	.	G	T	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|1
+x	761	.	CT	C	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=del	GT	1|1
+x	922	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	0|1
+x	948	.	A	AC	99	.	AC=2;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|1
+y	12	.	T	TG	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins;MICROSAT	GT	1|0
+y	22	.	C	CC	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|0
+y	42	.	A	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	0|1
+y	58	.	G	A	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	186	.	AG	A	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=del	GT	1|0
+y	189	.	C	CC	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|0
+y	255	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	259	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	327	.	TT	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=del	GT	1|0
+y	347	.	A	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	368	.	GG	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=del	GT	1|0
+y	432	.	T	TT	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|0
+y	583	.	A	C	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	600	.	A	G	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	613	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	670	.	G	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	761	.	CT	C	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=del	GT	1|0
+y	922	.	C	T	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=snp	GT	1|0
+y	948	.	A	AC	99	.	AC=1;LEN=1;NA=1;NS=1;TYPE=ins	GT	1|0
