@@ -50,7 +50,7 @@ pip3 install numba
 
 GRAFIMO can be built and installed via pip, from source code or via Bioconda. Note that the latter option is available only for Linux users.
 
-For further details on how to install GRAFIMO visit our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details on how to install GRAFIMO visit our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 **Build and install via pip**
 
@@ -70,7 +70,7 @@ If the help is correctly printed, then GRAFIMO have been installed and can be ca
 
 To build and install GRAFIMO from source code
 ```
-git clone https://github.com/pinellolab/GRAFIMO.git 
+git clone https://github.com/InfOmics/GRAFIMO.git 
 cd GRAFIMO
 python3 setup.py install --user
 ```
@@ -99,7 +99,7 @@ If no test fails, then all GRAFIMO functionalities work properly.
 
 **Build and install via Bioconda (Linux users only)**
 
-To install GRAFIMO via Bioconda the user should first have the ```conda``` package installed. If the user have an Anaconda Python installation, conda is already available, otherwise it can be installed with [Miniconda](https://conda.io/en/latest/miniconda.html) package. For further details ([https://bioconda.github.io/user/install.html](https://bioconda.github.io/user/install.html)).
+To install GRAFIMO via Bioconda the user should first have the ```conda``` package installed. If the user have an Anaconda Python installation, ```conda``` is already available, otherwise it can be installed with [Miniconda](https://conda.io/en/latest/miniconda.html) package. For further details ([https://bioconda.github.io/user/install.html](https://bioconda.github.io/user/install.html)).
 
 Once ```conda``` is available, to install GRAFIMO
 ```
@@ -129,7 +129,7 @@ If the help is correctly displayed, then the image has been correctly pulled.
 
 To build GRAFIMO Docker image from scratch, the user should clone or download GRAFIMO's github repository:
 ```
-git clone https://github.com/pinellolab/GRAFIMO.git
+git clone https://github.com/InfOmics/GRAFIMO.git
 cd GRAFIMO
 ```
 and build the image:
@@ -140,13 +140,13 @@ To test if the image has been correctly built, type:
 ```
 docker run -i grafimo grafimo -h
 ```
-If the help is correctly displayed, the  the image has been correctly built.
+If the help is correctly displayed, then the image has been correctly built.
 
 ## Usage
 
-For hands-on tutorials on how to use GRAFIMO check out our [tutorials](https://github.com/pinellolab/GRAFIMO/tree/master/tutorials). 
+For hands-on tutorials on how to use GRAFIMO check out our [tutorials](https://github.com/InfOmics/GRAFIMO/tree/master/tutorials). 
 
-For further details on GRAFIMO usage refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details on GRAFIMO usage refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 ### Searching potential motif occurrences with GRAFIMO
 
@@ -161,11 +161,11 @@ GRAFIMO requires three mandatory arguments:
 
 The main functionalities of GRAFIMO is to perform a haplotype and variant-aware search of potential DNA motif occurrences in genome variation graph. 
 
-Here we assume that the genome variation graph (VG) has been built constructing a VG for each chromosome. If working with a single whole genome variation graph just substitute the argument ```-d``` with ```-g``` followe by the path to the whole genome VG. In the next section will be presented how to build a VG with GRAFIMO.
+Here we assume that the genome variation graph (VG) has been built constructing a VG for each chromosome. If working with a single whole genome variation graph just substitute the argument ```-d``` with ```-g``` followed by the path to the whole genome VG. In the next section will be presented how to build a VG with GRAFIMO.
 
 Note that in both cases the XG and GBWT indexes of the VG  must be stored in the same location.
 
-For further details refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 If you are working in the ```tutorials/findmotif_tutorial``` directory, to run GRAFIMO
 ```
@@ -187,7 +187,7 @@ T	0.2955
 G	0.2048
 ```
 
-For an example of background files accepted by GRAFIMO, take a look at [`bg_nt`](https://github.com/pinellolab/GRAFIMO/blob/master/tutorials/findmotif_tutorial/data/bg_nt) in `tutorials/findmotif_tutorial/data` directory.
+For an example of background files accepted by GRAFIMO, take a look at [`bg_nt`](https://github.com/InfOmics/GRAFIMO/blob/master/tutorials/findmotif_tutorial/data/bg_nt) in `tutorials/findmotif_tutorial/data` directory.
 
 If you are working in ```tutorials/findmotif_tutorial``` directory, to run GRAFIMO with a background distribution
 ```
@@ -212,7 +212,7 @@ grafimo findmotif -d data/mygenome -m data/example.meme -b data/regions.bed --qv
 
 **For more options**
 
-For more options refer to ou [Wiki](https://github.com/pinellolab/GRAFIMO/wiki) or type
+For more options refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki) or type
 ```
 grafimo -h
 ```
@@ -220,11 +220,11 @@ grafimo -h
 **Results description**
 
 GRAFIMO results are reported in three files (stored in output directory):
-- **tab-delimited report (TSV report)**
-- **HTML report**
-- **GFF3 report**
+- tab-delimited report (TSV report)
+- HTML report
+- GFF3 report
 
-The **TSV report** contains all the statistically significant potential motif occurrence found by GRAFIMO (according to the applied threshold). Each retrieved motif occurrence has a log-likelihood score, a *P*-value, a *q*-value, its DNA sequence, a flag value stating if a sequence is part of the reference or has been found in the haplotypes and the number of haplotype sequences where the motif candidate sequence occurs. An example of TSV report is the following
+The TSV report contains all the statistically significant potential motif occurrence found by GRAFIMO (according to the applied threshold). Each retrieved motif occurrence has a log-likelihood score, a *P*-value, a *q*-value, its DNA sequence, a flag value stating if a sequence is part of the reference or has been found in the haplotypes and the number of haplotype sequences where the motif candidate sequence occurs. An example of TSV report is the following
 ```
 	motif_id	motif_alt_id	sequence_name	start	stop	strand	score	p-value	q-value	matched_sequence	haplotype_frequency	reference
 1	MA0139.1	CTCF	chr22:43481590-43481860	43481733	43481714	-	21.26229508196724	4.403657357543095e-08	0.004175283686980911	AAGCCAGCAGGGGGCACAG	5096	ref
@@ -240,9 +240,9 @@ The **TSV report** contains all the statistically significant potential motif oc
 ```
 This report can be easily processed for a downstream analysis by using Python or R programming languages, for example.
 
-The **HTML report** has the same content of the TSV, but it can be loaded and viewed on the most commonly used web browsers.
+The HTML report has the same content of the TSV, but it can be loaded and viewed on the most commonly used web browsers.
 
-The **GFF3** report can be loaded on the UCSC Genome Browser as a custom track. For example, this allows a fast linking between the genomic variants used to build the VG and those present in annotated databases like dbSNP or ClinVar.  
+The GFF3 report can be loaded on the UCSC Genome Browser as a custom track. For example, this allows a fast linking between the genomic variants used to build the VG and those present in annotated databases like dbSNP or ClinVar.  
 
 ### Building genome variation graphs (VGs) with GRAFIMO
 
@@ -263,7 +263,7 @@ If you are in ```tutorials/buildvg_tutorial``` directory, to build a VG with GRA
 grafimo buildvg -l data/xy.fa -v data/xy2.vcf.gz    
 ```
 
-For further details refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 ## References 
 
