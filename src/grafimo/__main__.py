@@ -2,7 +2,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2020 Pinello Lab
+# Copyright (c) 2020 InfOmics
 #
 # Permission is hereby granted, free of charge, to any person obtaining 
 # a copy of this software and associated documentation files (the 
@@ -87,8 +87,8 @@ documentation.
 
 If you use GRAFIMO in your research, please cite us:
 
-    Tognon, M., et al., "GRAFIMO: variant-aware motif scanning via 
-    genome variation graphs", xxxx
+    Tognon, Manuel, et al. "GRAFIMO: variant and haplotype aware motif scanning on 
+    pangenome graphs." bioRxiv (2021).
 
 
 Run `grafimo --help` to see all command-line options.
