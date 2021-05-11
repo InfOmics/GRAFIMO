@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install miniconda (Linux 64bit)
-apt-get install upgrade -y
+apt-get upgrade -y
 apt-get install curl -y
 curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 chmod +x Miniconda3-latest-Linux-x86_64.sh
@@ -14,6 +14,6 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 
 # install VG via bioconda
-conda install vg
+conda install vg -y
 vg find
 
