@@ -15,5 +15,4 @@ conda config --add channels conda-forge
 
 # install VG via bioconda
 conda install vg -y
-vg find
 
