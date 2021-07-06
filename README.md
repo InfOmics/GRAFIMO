@@ -1,5 +1,5 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/grafimo/README.html)
-[![Build Status](https://travis-ci.org/pinellolab/GRAFIMO.svg?branch=master)](https://travis-ci.org/pinellolab/GRAFIMO)
+[![Build Status](https://travis-ci.org/InfOmics/GRAFIMO.svg?branch=master)](https://travis-ci.org/pinellolab/GRAFIMO)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/grafimo/badges/platforms.svg)](https://anaconda.org/bioconda/grafimo)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/grafimo/badges/downloads.svg)](https://anaconda.org/bioconda/grafimo)
 
@@ -51,7 +51,7 @@ pip3 install colorama
 
 GRAFIMO can be built and installed via pip, from source code or via Bioconda. Note that the latter option is available only for Linux users.
 
-For further details on how to install GRAFIMO visit our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details on how to install GRAFIMO visit our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 **Build and install via pip**
 
@@ -71,7 +71,7 @@ If the help is correctly printed, then GRAFIMO have been installed and can be ca
 
 To build and install GRAFIMO from source code
 ```
-git clone https://github.com/pinellolab/GRAFIMO.git 
+git clone https://github.com/InfOmics/GRAFIMO.git 
 cd GRAFIMO
 python3 setup.py install --user
 ```
@@ -130,7 +130,7 @@ If the help is correctly displayed, then the image has been correctly pulled.
 
 To build GRAFIMO Docker image from scratch, the user should clone or download GRAFIMO's github repository:
 ```
-git clone https://github.com/pinellolab/GRAFIMO.git
+git clone https://github.com/InfOmics/GRAFIMO.git
 cd GRAFIMO
 ```
 and build the image:
@@ -145,9 +145,9 @@ If the help is correctly displayed, then the image has been correctly built.
 
 ## Usage
 
-For hands-on tutorials on how to use GRAFIMO check out our [tutorials](https://github.com/pinellolab/GRAFIMO/tree/master/tutorials). 
+For hands-on tutorials on how to use GRAFIMO check out our [tutorials](https://github.com/InfOmics/GRAFIMO/tree/master/tutorials). 
 
-For further details on GRAFIMO usage refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details on GRAFIMO usage refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 ### Searching potential motif occurrences with GRAFIMO
 
@@ -169,7 +169,7 @@ Here we assume that the genome variation graph (VG) has been built constructing 
 
 Note that in both cases **the XG and GBWT indexes of the VG  must be stored in the same location**.
 
-For further details refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 If you are working in the ```tutorials/findmotif_tutorial``` directory, to run GRAFIMO
 ```
@@ -191,7 +191,7 @@ T	0.2955
 G	0.2048
 ```
 
-For an example of background files accepted by GRAFIMO, take a look at [`bg_nt`](https://github.com/pinellolab/GRAFIMO/blob/master/tutorials/findmotif_tutorial/data/bg_nt) in `tutorials/findmotif_tutorial/data` directory.
+For an example of background files accepted by GRAFIMO, take a look at [`bg_nt`](https://github.com/InfOmics/GRAFIMO/blob/master/tutorials/findmotif_tutorial/data/bg_nt) in `tutorials/findmotif_tutorial/data` directory.
 
 If you are working in ```tutorials/findmotif_tutorial``` directory, to run GRAFIMO with a background distribution
 ```
@@ -216,7 +216,7 @@ grafimo findmotif -d data/mygenome -m data/example.meme -b data/regions.bed --qv
 
 #### For more options
 
-For more options refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki) or type
+For more options refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki) or type
 ```
 grafimo -h
 ```
@@ -267,7 +267,7 @@ If you are in ```tutorials/buildvg_tutorial``` directory, to build a VG with GRA
 grafimo buildvg -l data/xy.fa -v data/xy2.vcf.gz    
 ```
 
-For further details refer to our [Wiki](https://github.com/pinellolab/GRAFIMO/wiki).
+For further details refer to our [Wiki](https://github.com/InfOmics/GRAFIMO/wiki).
 
 ## References 
 
@@ -279,7 +279,7 @@ Garrison, Erik, et al. "Variation graph toolkit improves read mapping by represe
 
 ## How to reproduce the experiments
 
-All the scripts and IPython notebooks required to reproduce the experiments and the analysis presented in GRAFIMO's paper are available [here](https://github.com/pinellolab/GRAFIMO/tree/master/docs/paper_results).
+All the scripts and IPython notebooks required to reproduce the experiments and the analysis presented in GRAFIMO's paper are available [here](https://github.com/InfOmics/GRAFIMO/tree/master/docs/paper_results).
 
 ## Citation
 
